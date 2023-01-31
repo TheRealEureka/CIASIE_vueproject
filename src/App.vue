@@ -27,7 +27,7 @@ export default {
 }
 body{
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   background: #2c3e50;
   display: flex;
   justify-content: center;
@@ -40,6 +40,8 @@ body{
   align-items: center;
   width: 80vw;
   background: #ececec;
+  margin-bottom: 50px;
+
 }
 .separator{
   width: 100%;

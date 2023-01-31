@@ -5,13 +5,16 @@
   <h1>{{compte.label}}</h1>
   <p>{{compte.description}} <br> <small>Créé le {{new Date(compte.createdAt).toLocaleDateString()}} à {{new Date(compte.createdAt).toLocaleTimeString()}}</small></p>
 <br><br>
+  <div class="errors">
+
+    <div v-for="(error,index) in errors" :key="index" class="alert" :class="{'alert-danger' : error.type==='danger', 'alert-success' : error.type==='success'}">{{error.msg}}
+    </div>
+  </div>
   <fieldset>
     <legend>Ajouter un utilisateur</legend>
     <div class="separator"></div>
     <label>Pseudo:</label>
-    <input v-model="email" type="text" />
-    <label>Email:</label>
-    <input v-model="email" type="text" />
+    <input v-model="user.pseudo" type="text" />
     <br>
     <button @click="addUser" class="btn btn-success">Ajouter</button>
   </fieldset>
@@ -23,15 +26,17 @@
       <thead>
         <tr>
           <th scope="col">Nom</th>
-          <th scope="col">Email</th>
+          <th scope="col">tata</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="user in compte.users" :key="user.id">
-          <td>{{user.name}}</td>
-          <td>{{user.email}}</td>
+          <td>{{user.pseudo}}</td>
+          <td>toto</td>
           <td>
+            <a class="btn btn-success" :href="'/compte/'+id+'/'+user.id"><i class="bi bi-currency-dollar"></i></a>
+            &nbsp;
             <button class="btn btn-danger" @click="deleteUser(user.id)"><i class="bi bi-trash"></i></button>
           </td>
         </tr>
@@ -46,24 +51,75 @@ export default {
   name: "VueCompteDetail",
   data() {
     return {
-   id : 0,
-    compte : null
+    id : 0,
+      user : {
+        id :  "",
+       pseudo : "",
+       depense : []
+      },
+      errors: [],
+      compte : null,
+    comptes : null
     }
   },
-  created() {
-    let comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : [];
-    this.id = this.$route.params.id;
+  methods: {
+    addUser() {
+      let idx = this.comptes.findIndex(c => c.id == this.id);
+      if (idx !== -1 && this.user.pseudo.trim() !== "") {
+        this.user.id = "u" + Date.now();
+        this.comptes[idx].users.push(this.user);
+        this.logError({msg: 'Utilisateur ajouté avec succès', 'type': 'success'});
 
-    this.compte = comptes.find(c => c.id == this.id);
+        this.user = {
+          id: "",
+          pseudo: "",
+          depense: []
+        }
+        localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes));
+      }else{
+        this.logError({msg: 'Erreur lors de l\'ajout de l\'utilisateur', 'type': 'danger'});
+      }
+    },
+    deleteUser(userid) {
+      let idx = this.comptes.findIndex(c => c.id == this.id);
+      if (idx !== -1) {
+        let idxUser = this.comptes[idx].users.findIndex(u => u.id == userid);
+        if (idxUser !== -1) {
+          if (this.compte.users[idxUser].depense.length === 0) {
+            this.comptes[idx].users.splice(idxUser, 1);
+            localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes));
+            this.logError({msg: 'Utilisateur supprimé avec succès', 'type': 'success'});
+          }
+          else {
+            this.logError({msg: 'Impossible de supprimer un utilisateur avec des dépenses', 'type': 'danger'});
+          }
+        }else{
+          this.logError({msg: 'Une erreur est survenue', 'type': 'danger'});
 
-
-    if(this.compte == null)
-    {
-      document.location.href = "/404";
+        }
+      }
+    },
+    logError(error) {
+      error.id = Date.now()+" "+Math.random();
+      this.errors.push(error);
+      setTimeout(() => {
+        this.errors = this.errors.filter(e => e.id !== error.id);
+      }, 3000);
     }
+  },
+    created() {
+      this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : [];
+      this.id = this.$route.params.id;
 
+      this.compte = this.comptes.find(c => c.id == this.id);
+
+
+      if (this.compte == null) {
+        document.location.href = "/404";
+      }
+
+    }
   }
-}
 </script>
 
 <style scoped>

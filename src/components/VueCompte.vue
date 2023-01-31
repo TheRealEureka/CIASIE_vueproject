@@ -4,7 +4,6 @@
   <div class="errors">
 
     <div v-for="(error,index) in errors" :key="index" class="alert" :class="{'alert-danger' : error.type==='danger', 'alert-success' : error.type==='success'}">{{error.msg}}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 
     </div>
   </div>
