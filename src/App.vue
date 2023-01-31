@@ -1,5 +1,6 @@
 <template>
   <div class="content">
+
     <router-view/>
   </div>
 </template>
@@ -45,5 +46,34 @@ body{
   height: 1px;
   background: #ccc;
   margin: 10px 0;
+}
+fieldset {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  background: var(--bg-color);
+}
+.alert p{
+  margin: 0;
+  padding:0;
+}
+.errors{
+  width: 400px;
+}
+td a{
+  color: inherit;
+  font-size: 1.1em;
+  text-decoration: underline;
+}
+.list{
+  width: 100%;
+}
+.left{
+width: 100%;
+display: flex;
+justify-content: flex-start;
 }
 </style>

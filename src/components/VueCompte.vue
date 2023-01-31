@@ -18,7 +18,7 @@
       <br>
       <button @click="createSharedAccount" class="btn btn-success">Créer</button>
     </fieldset>
-    <div class="accounts-list">
+    <div class="list">
       <h2>Comptes partagés existants</h2>
       <div class="separator"></div>
       <div v-if="sharedAccounts.length === 0">Aucun compte partagé</div>
@@ -58,7 +58,9 @@ export default {
         id: 0,
         label: '',
         description: '',
-        createdAt: null
+        createdAt: null,
+        users: []
+
       },
       sharedAccounts: []
     }
@@ -76,7 +78,7 @@ export default {
         this.sharedAccount = {
           label: '',
           description: '',
-          createdAt: null
+          createdAt: null,
         }
         this.logError({msg: 'Compte créé avec succès', 'type': 'success'});
       }else{
@@ -102,32 +104,8 @@ export default {
 
 <style scoped>
 
-fieldset {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  min-width: 300px;
-  background: var(--bg-color);
-}
-.accounts-list{
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-.alert p{
-  margin: 0;
-  padding:0;
-}
-.errors{
-  width: 400px;
-}
-td a{
-  color: inherit;
-  text-decoration: none;
-}
+
+
+
 
 </style>
