@@ -2,9 +2,12 @@
   <div class="left">
     <a class="btn btn-sm btn-primary" href="/"><i class="bi bi-arrow-left"></i> Accueil</a>
   </div>
+
   <h1>{{compte.label}}</h1>
   <p>{{compte.description}} <br> <small>Créé le {{new Date(compte.createdAt).toLocaleDateString()}} à {{new Date(compte.createdAt).toLocaleTimeString()}}</small></p>
-<br><br>
+<br>
+  <h3>Total des dépenses et des apports : <br><br> <span style="color:red">{{totalDep}}€</span> / <span style="color:green">{{totalApp}}€</span> = <span>{{total}}€</span></h3>
+  <br>
   <div class="errors">
 
     <div v-for="(error,index) in errors" :key="index" class="alert" :class="{'alert-danger' : error.type==='danger', 'alert-success' : error.type==='success'}">{{error.msg}}
@@ -26,14 +29,14 @@
       <thead>
         <tr>
           <th scope="col">Nom</th>
-          <th scope="col">tata</th>
+          <th scope="col">Dépense / Apport</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="user in compte.users" :key="user.id">
           <td>{{user.pseudo}}</td>
-          <td>toto</td>
+          <td><span style="color:red">{{depensesToStr(user.depense)}}€</span> / <span style="color:green">{{apportToStr(user.depense)}}€</span> = {{totalToStr(user.depense)}}€ </td>
           <td>
             <a class="btn btn-success" :href="'/compte/'+id+'/'+user.id"><i class="bi bi-currency-dollar"></i></a>
             &nbsp;
@@ -62,6 +65,36 @@ export default {
     comptes : null
     }
   },
+  computed: {
+    total(){
+      return this.totalDep + this.totalApp;
+    },
+  totalDep() {
+    let total = 0;
+    this.compte.users.forEach(user => {
+      user.depense.forEach(dep => {
+        if(dep.montant <0){
+
+        total += dep.montant;
+        }
+      });
+    });
+    return total;
+  },
+  totalApp() {
+    let total = 0;
+    this.compte.users.forEach(user => {
+      user.depense.forEach(dep => {
+        if(dep.montant>0){
+          total += dep.montant;
+        }
+      });
+    });
+    return total;
+  },
+
+
+  },
   methods: {
     addUser() {
       let idx = this.comptes.findIndex(c => c.id == this.id);
@@ -79,6 +112,31 @@ export default {
       }else{
         this.logError({msg: 'Erreur lors de l\'ajout de l\'utilisateur', 'type': 'danger'});
       }
+    },
+    depensesToStr(depenses){
+      let dep = 0;
+      depenses.forEach(d => {
+        if(d.montant < 0){
+          dep += d.montant;
+        }
+      });
+      return dep;
+    },
+    apportToStr(depenses){
+      let app = 0;
+      depenses.forEach(d => {
+        if(d.montant >= 0){
+          app += d.montant;
+        }
+      });
+      return app;
+    },
+    totalToStr(depenses){
+      let total = 0;
+      depenses.forEach(d => {
+        total += d.montant;
+      });
+      return total;
     },
     deleteUser(userid) {
       let idx = this.comptes.findIndex(c => c.id == this.id);

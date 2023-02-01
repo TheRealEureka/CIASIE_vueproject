@@ -37,7 +37,7 @@
       <tbody>
         <tr v-for="depense in user.depense" :key="depense.id">
           <td>{{depense.libelle}}</td>
-          <td>{{depense.montant}}</td>
+          <td>{{depense.montant}}€</td>
           <td>{{depense.date}}</td>
           <td>
             <button class="btn btn-danger" @click="deleteDepense(depense.id)"><i class="bi bi-trash"></i></button>
