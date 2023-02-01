@@ -159,7 +159,7 @@ export default {
     // on recupere les comptes
       this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : [];
       // on recupere l'id du compte courant
-      this.id = this.$route.params.id;
+      this.id = this.$route['params'].id;
 // on recupere le compte courant
       this.compte = this.comptes.find(c => c.id == this.id);
 

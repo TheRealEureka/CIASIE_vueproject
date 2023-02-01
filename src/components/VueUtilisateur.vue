@@ -143,8 +143,8 @@ export default {
     }
   },
   created() {
-    this.id = this.$route.params.id; //récupération de l'id de l'utilisateur
-    this.compteid = this.$route.params.idcompte; //récupération de l'id du compte
+    this.id = this.$route['params'].id; //récupération de l'id de l'utilisateur
+    this.compteid = this.$route['params']['idcompte']; //récupération de l'id du compte
     this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : []; //récupération des comptes
     this.compte = this.comptes.find(c => c.id == this.compteid); //recherche du compte
     this.user = this.compte.users.find(u => u.id == this.id); //recherche de l'utilisateur
