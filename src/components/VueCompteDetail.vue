@@ -54,21 +54,24 @@ export default {
   name: "VueCompteDetail",
   data() {
     return {
-    id : 0,
-      user : {
+    id : 0, // id du compte courant
+      user : { // user a ajouter
         id :  "",
        pseudo : "",
        depense : []
       },
-      errors: [],
-      compte : null,
-    comptes : null
+      errors: [], // liste des erreurs
+      compte : null, // compte courant
+    comptes : null // liste des comptes
+
     }
   },
   computed: {
+    // total des depenses et des apports
     total(){
       return this.totalDep + this.totalApp;
     },
+    // total des depenses
   totalDep() {
     let total = 0;
     this.compte.users.forEach(user => {
@@ -81,6 +84,7 @@ export default {
     });
     return total;
   },
+  // total des apports
   totalApp() {
     let total = 0;
     this.compte.users.forEach(user => {
@@ -96,23 +100,25 @@ export default {
 
   },
   methods: {
+    // ajoute d'un utilisateur
     addUser() {
-      let idx = this.comptes.findIndex(c => c.id == this.id);
-      if (idx !== -1 && this.user.pseudo.trim() !== "") {
-        this.user.id = "u" + Date.now();
-        this.comptes[idx].users.push(this.user);
-        this.logError({msg: 'Utilisateur ajouté avec succès', 'type': 'success'});
+      let idx = this.comptes.findIndex(c => c.id == this.id); // recherche du compte courant
+      if (idx !== -1 && this.user.pseudo.trim() !== "") { // si le compte existe et que le pseudo n'est pas vide
+        this.user.id = "u" + Date.now(); // on ajoute un id unique
+        this.comptes[idx].users.push(this.user); // on ajoute l'utilisateur
+        this.logError({msg: 'Utilisateur ajouté avec succès', 'type': 'success'}); // on affiche un message de succès
 
-        this.user = {
+        this.user = { // on réinitialise l'utilisateur
           id: "",
           pseudo: "",
           depense: []
         }
-        localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes));
+        localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes)); // on sauvegarde les comptes
       }else{
-        this.logError({msg: 'Erreur lors de l\'ajout de l\'utilisateur', 'type': 'danger'});
+        this.logError({msg: 'Erreur lors de l\'ajout de l\'utilisateur', 'type': 'danger'}); // on affiche un message d'erreur
       }
     },
+    // Retourne le total des depenses et des apports d'un utilisateur
     depensesToStr(depenses){
       let dep = 0;
       depenses.forEach(d => {
@@ -120,47 +126,44 @@ export default {
       });
       return dep;
     },
-    totalToStr(depenses){
-      let total = 0;
-      depenses.forEach(d => {
-        total += d.montant;
-      });
-      return total;
-    },
+//Supprime un utilisateur
     deleteUser(userid) {
-      let idx = this.comptes.findIndex(c => c.id == this.id);
-      if (idx !== -1) {
-        let idxUser = this.comptes[idx].users.findIndex(u => u.id == userid);
-        if (idxUser !== -1) {
-          if (this.compte.users[idxUser].depense.length === 0) {
-            this.comptes[idx].users.splice(idxUser, 1);
-            localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes));
-            this.logError({msg: 'Utilisateur supprimé avec succès', 'type': 'success'});
+      let idx = this.comptes.findIndex(c => c.id == this.id); // recherche du compte courant
+      if (idx !== -1) { // si le compte existe
+        let idxUser = this.comptes[idx].users.findIndex(u => u.id == userid); // recherche de l'utilisateur
+        if (idxUser !== -1) { // si l'utilisateur existe
+          if (this.compte.users[idxUser].depense.length === 0) { // si l'utilisateur n'a pas de depense
+            this.comptes[idx].users.splice(idxUser, 1); // on supprime l'utilisateur
+            localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes)); // on sauvegarde les comptes
+            this.logError({msg: 'Utilisateur supprimé avec succès', 'type': 'success'}); // on affiche un message de succès
           }
           else {
-            this.logError({msg: 'Impossible de supprimer un utilisateur avec des dépenses', 'type': 'danger'});
+            this.logError({msg: 'Impossible de supprimer un utilisateur avec des dépenses', 'type': 'danger'}); // on affiche un message d'erreur
           }
         }else{
-          this.logError({msg: 'Une erreur est survenue', 'type': 'danger'});
+          this.logError({msg: 'Une erreur est survenue', 'type': 'danger'}); // on affiche un message d'erreur
 
         }
       }
     },
+    // affiche un message d'erreur
     logError(error) {
-      error.id = Date.now()+" "+Math.random();
-      this.errors.push(error);
-      setTimeout(() => {
+      error.id = Date.now()+" "+Math.random(); // on ajoute un id unique
+      this.errors.push(error); // on ajoute l'erreur
+      setTimeout(() => { // on supprime l'erreur au bout de 3 secondes
         this.errors = this.errors.filter(e => e.id !== error.id);
       }, 3000);
     }
   },
     created() {
+    // on recupere les comptes
       this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : [];
+      // on recupere l'id du compte courant
       this.id = this.$route.params.id;
-
+// on recupere le compte courant
       this.compte = this.comptes.find(c => c.id == this.id);
 
-
+// si le compte n'existe pas on redirige vers la page 404
       if (this.compte == null) {
         document.location.href = "/404";
       }
