@@ -6,7 +6,7 @@
   <h1>{{compte.label}}</h1>
   <p>{{compte.description}} <br> <small>Créé le {{new Date(compte.createdAt).toLocaleDateString()}} à {{new Date(compte.createdAt).toLocaleTimeString()}}</small></p>
 <br>
-  <h3>Total des dépenses et des apports : <br><br> <span style="color:red">{{totalDep}}€</span> / <span style="color:green">{{totalApp}}€</span> = <span>{{total}}€</span></h3>
+  <h3 >Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></h3>
   <br>
   <div class="errors">
 
@@ -36,7 +36,7 @@
       <tbody>
         <tr v-for="user in compte.users" :key="user.id">
           <td>{{user.pseudo}}</td>
-          <td><span style="color:red">{{depensesToStr(user.depense)}}€</span> / <span style="color:green">{{apportToStr(user.depense)}}€</span> = {{totalToStr(user.depense)}}€ </td>
+          <td><span :class="{'red':depensesToStr(user.depense)<0, 'green' : depensesToStr(user.depense)>0}">{{depensesToStr(user.depense)}}€</span>  </td>
           <td>
             <a class="btn btn-success" :href="'/compte/'+id+'/'+user.id"><i class="bi bi-currency-dollar"></i></a>
             &nbsp;
@@ -116,20 +116,9 @@ export default {
     depensesToStr(depenses){
       let dep = 0;
       depenses.forEach(d => {
-        if(d.montant < 0){
           dep += d.montant;
-        }
       });
       return dep;
-    },
-    apportToStr(depenses){
-      let app = 0;
-      depenses.forEach(d => {
-        if(d.montant >= 0){
-          app += d.montant;
-        }
-      });
-      return app;
     },
     totalToStr(depenses){
       let total = 0;

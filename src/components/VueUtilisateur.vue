@@ -9,7 +9,7 @@
   <fieldset>
     <legend>Ajouter une dépense</legend>
     <div class="separator"></div>
-    <label>Libelle:</label>
+    <label>Libellé:</label>
     <input v-model="depense.libelle" type="text" />
     <br>
     <label>Montant:</label>
@@ -23,12 +23,14 @@
   </fieldset>
   <h2>Dépenses</h2>
   <div class="separator"></div>
+  <p>Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></p>
+
   <div v-if="user.depense.length === 0">Aucune dépense</div>
   <div v-else class="list">
     <table class="table table-striped">
       <thead>
         <tr>
-          <th scope="col">libelle</th>
+          <th scope="col">Libellé</th>
           <th scope="col">Montant</th>
           <th scope="col">Date</th>
           <th scope="col">Actions</th>
@@ -37,7 +39,7 @@
       <tbody>
         <tr v-for="depense in user.depense" :key="depense.id">
           <td>{{depense.libelle}}</td>
-          <td>{{depense.montant}}€</td>
+          <td><span :class="{'red':depense.montant<0, 'green' : depense.montant>0}">{{depense.montant}}€</span></td>
           <td>{{depense.date}}</td>
           <td>
             <button class="btn btn-danger" @click="deleteDepense(depense.id)"><i class="bi bi-trash"></i></button>
@@ -65,6 +67,25 @@ export default {
       user : null,
       compte : null,
       comptes : null,
+    }
+  },
+  computed:{
+    totalDep(){
+      let total = 0;
+      this.user.depense.forEach(d => {
+        if(d.montant < 0) total += d.montant;
+      });
+      return total;
+    },
+    totalApp(){
+      let total = 0;
+      this.user.depense.forEach(d => {
+        if(d.montant > 0) total += d.montant;
+      });
+      return total;
+    },
+    total(){
+      return this.totalApp + this.totalDep;
     }
   },
   methods:{

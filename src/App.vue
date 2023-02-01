@@ -78,4 +78,15 @@ width: 100%;
 display: flex;
 justify-content: flex-start;
 }
+.green{
+  color: green;
+}
+.red{
+  color: red;
+}
+.surrounded{
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
 </style>
