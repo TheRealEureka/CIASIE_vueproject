@@ -7,12 +7,14 @@
 *.iws
 .idea/
 .out/
-
 ## Packages
 vendor/
 node_modules/
 npm-debug.log
 composer.lock
+package-lock.json
+dist/
+
 
 ## Mac
 .DS_Store
