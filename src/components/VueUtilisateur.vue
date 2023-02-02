@@ -21,10 +21,12 @@
     <br>
     <button @click="addDepense" class="btn btn-success">Ajouter</button>
   </fieldset>
+  <br>
+  <h5>Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></h5>
+<br>
   <h2>Dépenses</h2>
   <div class="separator"></div>
-  <p>Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></p>
-
+  <br>
   <div v-if="user.depense.length === 0">Aucune dépense</div>
   <div v-else class="list">
     <table class="table table-striped">
