@@ -84,7 +84,7 @@ export default {
       modal : {
         username : "", // nom de l'utilisateur
         diffModal : 0,// difference entre les depenses et les apports (pour le modal)
-        userid : "" // id de l'utilisateur
+        user : {} // id de l'utilisateur
       },
       errors: [], // liste des erreurs
       compte : null, // compte courant
@@ -128,10 +128,9 @@ export default {
   methods: {
     // ajoute d'un utilisateur
     addUser() {
-      let idx = this.comptes.findIndex(c => c.id == this.id); // recherche du compte courant
-      if (idx !== -1 && this.user.pseudo.trim() !== "") { // si le compte existe et que le pseudo n'est pas vide
+      if (this.user.pseudo.trim() !== "") { // si le compte existe et que le pseudo n'est pas vide
         this.user.id = "u" + Date.now(); // on ajoute un id unique
-        this.comptes[idx].users.push(this.user); // on ajoute l'utilisateur
+        this.compte.users.push(this.user); // on ajoute l'utilisateur
         this.logError({msg: 'Utilisateur ajouté avec succès', 'type': 'success'}); // on affiche un message de succès
 
         this.user = { // on réinitialise l'utilisateur
@@ -141,7 +140,7 @@ export default {
         }
         localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes)); // on sauvegarde les comptes
       }else{
-        this.logError({msg: 'Erreur lors de l\'ajout de l\'utilisateur', 'type': 'danger'}); // on affiche un message d'erreur
+        this.logError({msg: 'Le pseudo ne peut pas être vide', 'type': 'danger'}); // on affiche un message d'erreur
       }
     },
     // Retourne le total des depenses et des apports d'un utilisateur
@@ -178,7 +177,7 @@ export default {
         this.modal = { // on initialise le modal
           username : user.pseudo,
           diffModal : this.totalToStr(user.depense)*-1,
-          userid : user.id
+          user : user
         }
         if(this.modal.diffModal !== 0){
           this.disp = "block";
@@ -190,51 +189,39 @@ export default {
         this.modal = {
           username : "",
           diffModal : 0,
-          userid : ""
+          user : ""
         }
       }
     },
 
     // Gere la balance des depenses
     balanceDep(){
-      let idxcompte = this.comptes.findIndex(c => c.id == this.id); //recherche du compte
-      if(idxcompte !== -1) { //si le compte existe
-        let idxuser = this.comptes[idxcompte].users.findIndex(u => u.id == this.modal.userid); //recherche de l'utilisateur
-        if(idxuser !== -1) { //si l'utilisateur existe
+//si l'utilisateur existe
           this.depense = { //réinitialisation de l'objet dépense
             montant : this.modal.diffModal,
             date : new Date().toDateInputValue(),
             libelle : "Régularisation"
           };
-          this.comptes[idxcompte].users[idxuser].depense.push(this.depense); //ajout de la dépense
+          this.modal.user.depense.push(this.depense); //ajout de la dépense
           this.logError({type: 'success', msg: 'Régularisation effectuée'}); //message de succès
           localStorage.setItem('sharedAccounts', JSON.stringify(this.comptes)); //sauvegarde dans le localstorage
           this.toggleModal();
-          return;
-        }
-      }
-      this.logError({type: 'danger', msg: 'Erreur lors de la régularisation'}); //message d'erreur
-      this.toggleModal();
     },
 //Supprime un utilisateur
-    deleteUser(userid) {
-      let idx = this.comptes.findIndex(c => c.id == this.id); // recherche du compte courant
-      if (idx !== -1) { // si le compte existe
-        let idxUser = this.comptes[idx].users.findIndex(u => u.id == userid); // recherche de l'utilisateur
+    deleteUser(userid) {// si le compte existe
+        let idxUser = this.compte.users.findIndex(u => u.id == userid); // recherche de l'utilisateur
         if (idxUser !== -1) { // si l'utilisateur existe
           if (this.compte.users[idxUser].depense.length === 0) { // si l'utilisateur n'a pas de depense
-            this.comptes[idx].users.splice(idxUser, 1); // on supprime l'utilisateur
+            this.compte.users.splice(idxUser, 1); // on supprime l'utilisateur
             localStorage.setItem("sharedAccounts", JSON.stringify(this.comptes)); // on sauvegarde les comptes
             this.logError({msg: 'Utilisateur supprimé avec succès', 'type': 'success'}); // on affiche un message de succès
           }
           else {
             this.logError({msg: 'Impossible de supprimer un utilisateur avec des dépenses', 'type': 'danger'}); // on affiche un message d'erreur
           }
-        }else{
-          this.logError({msg: 'Une erreur est survenue', 'type': 'danger'}); // on affiche un message d'erreur
-
+      }else{
+        this.logError({msg: 'Utilisateur introuvable', 'type': 'danger'}); // on affiche un message d'erreur
         }
-      }
     },
     // affiche un message d'erreur
     logError(error) {
@@ -254,7 +241,7 @@ export default {
       this.compte = this.comptes.find(c => c.id == this.id);
 
 // si le compte n'existe pas on redirige vers la page 404
-      if (this.compte == null) {
+      if (this.compte === null || this.compte === undefined){
         document.location.href = "/404";
       }
 

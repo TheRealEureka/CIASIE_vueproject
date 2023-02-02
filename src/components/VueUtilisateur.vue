@@ -62,6 +62,7 @@ export default {
       compteid: "", //id du compte
       errors:[], //tableau d'erreurs
       depense : { //objet depense a ajouter
+        id : "",
         montant : 0,
         date : new Date().toDateInputValue(), //date du jour convertie en format date input
         libelle : ""
@@ -94,44 +95,31 @@ export default {
     }
   },
   methods:{
-    //Ajout d'une dépense dans le tableau de dépenses de l'utilisateur
+
     addDepense(){
       if(this.depense.libelle === "") { //si le libelle est vide
         this.logError({type: 'danger', msg: 'Veuillez remplir tous les champs'});
         return;
       }
-      let idxcompte = this.comptes.findIndex(c => c.id == this.compteid); //recherche du compte
-      if(idxcompte !== -1) { //si le compte existe
-        let idxuser = this.comptes[idxcompte].users.findIndex(u => u.id == this.id); //recherche de l'utilisateur
-        if(idxuser !== -1) { //si l'utilisateur existe
-          this.comptes[idxcompte].users[idxuser].depense.push(this.depense); //ajout de la dépense
-          this.depense = { //réinitialisation de l'objet dépense
-            montant : 0,
-            date : new Date().toDateInputValue(),
-            libelle : ""
-          };
-          this.logError({type: 'success', msg: 'Dépense ajoutée'}); //message de succès
-          localStorage.setItem('sharedAccounts', JSON.stringify(this.comptes)); //sauvegarde dans le localstorage
-          return;
-        }
-      }
-      this.logError({type: 'danger', msg: 'Erreur lors de l\'ajout de la dépense'}); //message d'erreur
-
+      this.depense.id = "d"+Date.now(); //id de la dépense
+      this.user.depense.push(this.depense); //ajout de la dépense
+      this.depense = { //réinitialisation de l'objet dépense
+        montant : 0,
+        date : new Date().toDateInputValue(),
+        libelle : ""
+      };
+      this.logError({type: 'success', msg: 'Dépense ajoutée'}); //message de succès
+      localStorage.setItem('sharedAccounts', JSON.stringify(this.comptes)); //sauvegarde dans le localstorage
     },
     //Suppression d'une dépense
     deleteDepense(id){
-      let idxcompte = this.comptes.findIndex(c => c.id == this.compteid); //recherche du compte
-      if(idxcompte !== -1) { //si le compte existe
-        let idxuser = this.comptes[idxcompte].users.findIndex(u => u.id == this.id); //recherche de l'utilisateur
-        if(idxuser !== -1) { //si l'utilisateur existe
-          let idxdepense = this.comptes[idxcompte].users[idxuser].depense.findIndex(d => d.id == id); //recherche de la dépense
-          if(idxdepense !== -1) { //si la dépense existe
-            this.comptes[idxcompte].users[idxuser].depense.splice(idxdepense, 1); //suppression de la dépense
+      console.log(id)
+      let idxdepense = this.user.depense.findIndex(d => d.id === id); //recherche de l'index de la dépense
+      if(idxdepense !== -1){
+            this.user.depense.splice(idxdepense, 1); //suppression de la dépense
             this.logError({type: 'success', msg: 'Dépense supprimée'}); //message de succès
             localStorage.setItem('sharedAccounts', JSON.stringify(this.comptes)); //sauvegarde dans le localstorage
-            return;
-          }
-        }
+      return;
       }
       this.logError({type: 'danger', msg: 'Erreur lors de la suppression de la dépense'}); //message d'erreur
     },
@@ -150,7 +138,7 @@ export default {
     this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : []; //récupération des comptes
     this.compte = this.comptes.find(c => c.id == this.compteid); //recherche du compte
     this.user = this.compte.users.find(u => u.id == this.id); //recherche de l'utilisateur
-    if(this.user === null){ //si l'utilisateur n'existe pas on redirige vers la page du compte, qui affichera un message d'erreur si le compte n'existe pas
+    if(this.user === null || this.user === undefined){ //si l'utilisateur n'existe pas on redirige vers la page du compte, qui affichera un message d'erreur si le compte n'existe pas
       document.location.href = "/compte/"+this.compteid;
     }
 

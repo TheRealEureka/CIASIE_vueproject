@@ -67,6 +67,7 @@ export default {
   created() {
     //Récupération des comptes partagés existants dans le localStorage
     this.sharedAccounts = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : [];
+
   },
   methods: {
     //Création d'un compte partagé
