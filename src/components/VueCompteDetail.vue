@@ -35,10 +35,11 @@
       </thead>
       <tbody>
         <tr v-for="user in compte.users" :key="user.id">
-          <td>{{user.pseudo}}</td>
+          <td><a :href="'/compte/'+id+'/'+user.id">{{user.pseudo}}</a></td>
           <td><span :class="{'red':depensesToStr(user.depense)<0, 'green' : depensesToStr(user.depense)>0}">{{depensesToStr(user.depense)}}€</span>  </td>
           <td>
-            <a class="btn btn-success" :href="'/compte/'+id+'/'+user.id"><i class="bi bi-currency-dollar"></i></a>
+            <button class="btn btn-success" @click="toggleModal(user)"><i class="bi bi-currency-dollar"></i></button>
+
             &nbsp;
             <button class="btn btn-danger" @click="deleteUser(user.id)"><i class="bi bi-trash"></i></button>
           </td>
@@ -47,6 +48,24 @@
     </table>
   </div>
 
+  <div class="modal" :style="{'display' : disp}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Régularisation du solde</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="toggleModal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Cette action permet d'ajouter le remboursement d'une dette ou d'un apport. </p>
+          <p>Vous confirmez le remboursement de <span :class="{'red':modal.diffModal<0, 'green' : modal.diffModal>0}">{{modal.diffModal}}€</span> pour <strong>{{modal.username}}</strong> ?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="toggleModal" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" @click="balanceDep">Continuer</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -59,6 +78,12 @@ export default {
         id :  "",
        pseudo : "",
        depense : []
+      },
+      disp : "none", // affichage du modal
+      modal : {
+        username : "", // nom de l'utilisateur
+        diffModal : 0,// difference entre les depenses et les apports (pour le modal)
+        userid : "" // id de l'utilisateur
       },
       errors: [], // liste des erreurs
       compte : null, // compte courant
@@ -125,6 +150,46 @@ export default {
           dep += d.montant;
       });
       return dep;
+    },
+    // Affiche le modal
+    toggleModal(user = {}){
+      if(this.disp === "none"){
+        this.disp = "block";
+        this.modal = { // on initialise le modal
+          username : user.pseudo,
+          diffModal : this.depensesToStr(user.depense)*-1,
+          userid : user.id
+        }
+      }else{
+        this.disp = "none";
+        this.modal = {
+          username : "",
+          diffModal : 0,
+          userid : ""
+        }
+      }
+    },
+
+    // Gere la balance des depenses
+    balanceDep(){
+      let idxcompte = this.comptes.findIndex(c => c.id == this.id); //recherche du compte
+      if(idxcompte !== -1) { //si le compte existe
+        let idxuser = this.comptes[idxcompte].users.findIndex(u => u.id == this.modal.userid); //recherche de l'utilisateur
+        if(idxuser !== -1) { //si l'utilisateur existe
+          this.depense = { //réinitialisation de l'objet dépense
+            montant : this.modal.diffModal,
+            date : new Date().toDateInputValue(),
+            libelle : "Régularisation"
+          };
+          this.comptes[idxcompte].users[idxuser].depense.push(this.depense); //ajout de la dépense
+          this.logError({type: 'success', msg: 'Régularisation effectuée'}); //message de succès
+          localStorage.setItem('sharedAccounts', JSON.stringify(this.comptes)); //sauvegarde dans le localstorage
+          this.toggleModal();
+          return;
+        }
+      }
+      this.logError({type: 'danger', msg: 'Erreur lors de la régularisation'}); //message d'erreur
+      this.toggleModal();
     },
 //Supprime un utilisateur
     deleteUser(userid) {
