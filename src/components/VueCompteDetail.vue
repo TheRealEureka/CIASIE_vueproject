@@ -4,15 +4,14 @@
   </div>
 
   <h1>{{compte.label}}</h1>
-  <p>{{compte.description}} <br> <small>Créé le {{new Date(compte.createdAt).toLocaleDateString()}} à {{new Date(compte.createdAt).toLocaleTimeString()}}</small></p>
+  <h5>{{compte.description}} <br> <small>Créé le {{new Date(compte.createdAt).toLocaleDateString()}} à {{new Date(compte.createdAt).toLocaleTimeString()}}</small></h5>
 <br>
-  <h3 >Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></h3>
-  <br>
   <div class="errors">
-
-    <div v-for="(error,index) in errors" :key="index" class="alert" :class="{'alert-danger' : error.type==='danger', 'alert-success' : error.type==='success'}">{{error.msg}}
+    <div v-for="(error,index) in errors" :key="index" class="alert" :class="{'alert-danger' : error.type==='danger', 'alert-success' : error.type==='success', 'alert-warning':error.type === 'warning'}">{{error.msg}}
     </div>
   </div>
+
+  <br>
   <fieldset>
     <legend>Ajouter un utilisateur</legend>
     <div class="separator"></div>
@@ -21,6 +20,8 @@
     <br>
     <button @click="addUser" class="btn btn-success">Ajouter</button>
   </fieldset>
+  <h5>Total des dépenses et des apports : <br><br> <span class="surrounded"><span style="color:red">{{totalDep}}€</span> + <span style="color:green">{{totalApp}}€</span> = <span  :class="{'red':total<0, 'green' : total>=0}">{{total}}€</span></span></h5>
+  <br>
   <h2>Utilisateurs</h2>
   <div class="separator"></div>
   <div v-if="compte.users.length === 0">Aucun utilisateur</div>
@@ -36,7 +37,7 @@
       <tbody>
         <tr v-for="user in compte.users" :key="user.id">
           <td><a :href="'/compte/'+id+'/'+user.id">{{user.pseudo}}</a></td>
-          <td><span :class="{'red':depensesToStr(user.depense)<0, 'green' : depensesToStr(user.depense)>0}">{{depensesToStr(user.depense)}}€</span>  </td>
+          <td><span class="red">{{depToStr(user.depense)}}€</span> + <span class="green">{{appToStr(user.depense)}}€</span> = <span :class="{'red':totalToStr(user.depense)<0, 'green' : totalToStr(user.depense)>0}">{{ totalToStr(user.depense) }}€</span>  </td>
           <td>
             <button class="btn btn-success" @click="toggleModal(user)"><i class="bi bi-currency-dollar"></i></button>
 
@@ -144,21 +145,45 @@ export default {
       }
     },
     // Retourne le total des depenses et des apports d'un utilisateur
-    depensesToStr(depenses){
+    totalToStr(depenses){
       let dep = 0;
       depenses.forEach(d => {
           dep += d.montant;
       });
       return dep;
     },
+    //Retourne les depenses d'un utilisateur
+    depToStr(depenses){
+      let dep = 0;
+      depenses.forEach(d => {
+        if(d.montant < 0){
+          dep += d.montant;
+        }
+      });
+      return dep;
+    },
+    //Retourne les apports d'un utilisateur
+    appToStr(depenses){
+      let dep = 0;
+      depenses.forEach(d => {
+        if(d.montant > 0){
+          dep += d.montant ;
+        }
+      });
+      return dep;
+    },
     // Affiche le modal
     toggleModal(user = {}){
       if(this.disp === "none"){
-        this.disp = "block";
         this.modal = { // on initialise le modal
           username : user.pseudo,
-          diffModal : this.depensesToStr(user.depense)*-1,
+          diffModal : this.totalToStr(user.depense)*-1,
           userid : user.id
+        }
+        if(this.modal.diffModal !== 0){
+          this.disp = "block";
+        }else{
+          this.logError({msg: 'Aucune différence à régulariser', 'type': 'warning'});
         }
       }else{
         this.disp = "none";
