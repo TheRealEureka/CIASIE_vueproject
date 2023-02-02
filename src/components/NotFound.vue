@@ -6,7 +6,7 @@
     <h2>Page not found</h2>
     <p>Désolé, la page que vous cherchez n'a pas été trouvée.</p>
 
-    <router-link to="/">Retour à l'accueil</router-link>
+    <router-link class="btn btn-primary" to="/">Retour à l'accueil</router-link>
 
   </div>
 </template>

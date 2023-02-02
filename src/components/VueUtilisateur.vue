@@ -137,11 +137,13 @@ export default {
     this.compteid = this.$route['params']['idcompte']; //récupération de l'id du compte
     this.comptes = window.localStorage.getItem('sharedAccounts') ? JSON.parse(window.localStorage.getItem('sharedAccounts')) : []; //récupération des comptes
     this.compte = this.comptes.find(c => c.id == this.compteid); //recherche du compte
-    this.user = this.compte.users.find(u => u.id == this.id); //recherche de l'utilisateur
-    if(this.user === null || this.user === undefined){ //si l'utilisateur n'existe pas on redirige vers la page du compte, qui affichera un message d'erreur si le compte n'existe pas
+    if(!this.compte){ //si l'utilisateur n'existe pas on redirige vers la page du compte, qui affichera un message d'erreur si le compte n'existe pas
       document.location.href = "/compte/"+this.compteid;
     }
-
+    this.user = this.compte.users.find(u => u.id == this.id); //recherche de l'utilisateur
+    if(!this.user){ //si l'utilisateur n'existe pas on redirige vers la page du compte, qui affichera un message d'erreur si le compte n'existe pas
+      document.location.href = "/compte/"+this.compteid;
+    }
   }
 
 }
