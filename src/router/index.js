@@ -17,6 +17,7 @@ const routes = [
 
 //On crée le router
 const index = createRouter({
+    base: '/CIASIE_vueproject/',
     history: createWebHistory(), //On utilise le mode history
     routes
 })
